@@ -1,0 +1,13 @@
+cd ~/demeler-gem
+gem build demeler.gemspec
+
+sudo gem uninstall demeler
+
+sudo gem install demeler
+
+#----------------------------------------
+
+To run tests (with 'bacon' installed):
+
+bacon -Ilib spec/demeler.rb
+
