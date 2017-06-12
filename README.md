@@ -1,9 +1,16 @@
 # Demeler Gem
 
-### Copyright (c) 2017 Michael J Welch, Ph.D. mjwelchphd@gmail.com
+**Copyright (c) 2017 Michael J Welch, Ph.D. <mjwelchphd@gmail.com>**
+
+_NOTE: I appologize that the documentation isn't better than it is, but I'm running way behind in my work trying to make this into a gem in order to preserve and share it._
+
 All files in this distribution are subject to the terms of the MIT license.
 
-This gem builds HTML code on-the-fly. The advantages are: (1) HTML code is properly formed with respect to tags and nesting; and (2) the code is dynamic, i.e., values from an object containing data (if used) are automatically extracted and inserted into the resultant HTML code, and (3) if there are errors, the error message is generated also.
+This gem builds HTML code on-the-fly. The advantages are:
+
+1. HTML code is properly formed with respect to tags and nesting;
+2. the code is dynamic, i.e., values from an object containing data (if used) are automatically extracted and inserted into the resultant HTML code; and
+3. if there are errors, the error message is generated also.
 
 The French word démêler means "to unravel," and that's sort of what this gem does. Démêler is pronounced "day-meh-lay." It unravels your inputs to form HTML code. The diacritical marks are not used in the name for compatibility.
 
@@ -12,8 +19,8 @@ This class doesn't depend on any particular framework, but I use it with Ruby Se
 
 ## The Demeler gem generates HTML from three inputs:
 * A Ruby source file you write;
-* A Hash-based object you provide, like Sequel::Model objects
-* An errors list inside the Hash-based object
+* A Hash-based object you provide, like Sequel::Model objects; and
+* An errors list inside the Hash-based object.
 
 Let's start with the most basic form, a simple example. Run `irb` and enter this:
 
@@ -187,7 +194,7 @@ Any attribute can be added in this way.
 
 ## Embedding text between tags on one line
 
-Normally, anything in brackets {} is embedded like this: `p{"Some text."}` yields:
+Normally, anything in brackets {} is embedded like this; `p{"Some text."}` yields:
 
 ```html
 <!-- begin generated output -->
@@ -197,7 +204,7 @@ Normally, anything in brackets {} is embedded like this: `p{"Some text."}` yield
 <!-- end generated output -->
 ```
 
-You can make it come out on one line by using the :text attribute: `p :text=>"Some text."` yields:
+You can make it come out on one line by using the `:text` attribute; `p :text=>"Some text."` yields:
 
 ```html
 <!-- begin generated output -->
@@ -205,7 +212,7 @@ You can make it come out on one line by using the :text attribute: `p :text=>"So
 <!-- end generated output -->
 ```
 
-In most cases, this can be achieved just by eliminating the {}: `p "Some text." yields:
+In most cases, this can be achieved just by eliminating the {}; `p "Some text." yields:
 
 ```html
 <!-- begin generated output -->
@@ -215,101 +222,289 @@ In most cases, this can be achieved just by eliminating the {}: `p "Some text." 
 
 This is because the solo string is converted to a :text argument automatically.
 
+## How to create an input control
 
-## Demeler Interface Definitions
+A standard input control is just a tag and options. Take the `text` control, for example.
 
-The Demeler gem accepts any random tag you want to give it, but non-input tags and input tags are treated differently. Input tags are :button, :checkbox, :color, :date, :datetime_local, :email, :hidden, :image, :month, :number, :password, :range, :radio, :reset, :search, :select, :submit, :tel, :text, :time, :url, and :week. All other tags are non-input tags.
+`text :username, :size=>30, :value=>"joe.e.razsolli"` => `<input name="username" size="30" value="joe.e.razsolli" type="text" />`
 
-Input tags are treated differently because they have special characteristics, like automatically setting from a form object passed to Demeler. Therefore, we'll start with non-input tags first.
+The button, color, date, datetime_local, email, hidden, image, month, number, password, range, reset, search, submit, tel, text, time, url, and week tags all work the that way.
 
-Non-input tags can accept a variety of parameter arrangements to allow for different situations. Each different situation is described below, and there are examples to help you understand.
+The textarea control, on the other hand, puts it's value between the tags, so it uses a :text attribute instead of a :value attribute.
 
-### Non-Input Tag Parameter Formats
+`textarea :username, :size=>30, :text="joe.e.razsolli` => `<textarea name="username" size="30">joe.e.razsolli</textarea>`
 
-#### tag opts
+The textarea tag can take its text from a block, also.
 
-_Opts is a Hash with attributes._
+`textarea(:username, :size=>30) { "joe.e.razsolli" }` => `<textarea name="username" size="30">joe.e.razsolli</textarea>`
+
+Notice for the block form, you have to enclose the parameters to the textarea call in parenthesis.
+
+## How to Create a Checkbox, Radio, or Select Control
+
+For a checkbox, radio, or select control, use the formats below.
+
+`checkbox(:vehicle, opts, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")` =>
+```html
+<input name="vehicle[1]" type="checkbox" value="volvo">Volvo</input>
+<input name="vehicle[2]" type="checkbox" value="saab">Saab</input>
+<input name="vehicle[3]" type="checkbox" value="mercedes">Mercedes</input>
+<input name="vehicle[4]" type="checkbox" value="audi">Audi</input>
+```
+
+`radio(:vehicle, opts, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")` =>
+```html
+<input name="vehicle" type="radio" value="volvo">Volvo</input>
+<input name="vehicle" type="radio" value="saab">Saab</input>
+<input name="vehicle" type="radio" value="mercedes">Mercedes</input>
+<input name="vehicle" type="radio" value="audi">Audi</input>
+```
+
+`select(:vehicle, opts, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")` =>
+```html
+<select name="vehicle">
+ <option value="volvo">Volvo</option>
+ <option value="saab">Saab</option>
+ <option value="mercedes">Mercedes</option>
+ <option value="audi">Audi</option>
+</select>
+```
+
+Opts represents a Hash with tag attributes.
+
+
+
+## Reference Guide
+
+### def self.build(obj=nil, gen_html=false, session={}, &block)
+
+This is the main Demeler call used to build your HTML. This call uses your code in the block, so it makes no sense to call `build` without a block.
+
+Name | Type | Value
+---- | ---- | -----
+obj | Hash+ | An object to use to get values and error messages.
+gen_html | Boolean | Create formatted HTML (true), or compact HTML (false: default).
+session | Hash | A variable meant to pass a session in a web server, but you can use it for passing any other value as well. _This value is for the caller's use and is not used by Demeler._
+block | Proc | The block with your code.
+
+### def initialize(obj=nil, session={}, &block)
+
+Initialize sets up the initial conditions in Demeler, and is called by `new`.
+
+Name | Type | Value
+---- | ---- | -----
+obj | Hash+ | An object to use to get values and error messages.
+session | Hash | A variable meant to pass a session in a web server, but you can use it for passing any other value as well. _This value is for the caller's use and is not used by Demeler._
+block | Proc | The block with your code.
+
+### def clear
+
+Clear resets the output variables in order to reuse Demeler without having to reinstantiate it.
+
+### method_missing(meth, *args, &block)
+
+This is a Ruby method which catches method calls that have no real method. For example, when you code a `body` tag, there is no method in Demeler to handle that, so it is caught be `missing_method`. Missing_method passes the call along to `tag_generator` to be coded.
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The name of the missing method being caught.
+*args | Array | An array of arguments from the call that was intercepted. Tag_generator will try to make sense of them.
+block | Proc | The block with your code.
+
+### def p(*args, &block)
+
+The `p` method is a workaround to make 'p' tags work in `build`.
+
+Name | Type | Value
+---- | ---- | -----
+*args | Array | An array of arguments from the call that was intercepted. Tag_generator will try to make sense of them.
+block | Proc | The block with your code.
+
+### def alink(text, args={})
+
+The `alink` method is a shortcut to build an `a` tag. You could also write a `a` tag like so:
 
 ```ruby
-puts (Demeler.build(nil, true) do
-  div :class=>"div-class" do
-    "..."
-  end
-end)
+Demeler.build do
+  a(:href=>"/") { "Home" }
+end
+```
 
+but the alink method is a shortcut. Code it like this:
+
+```ruby
+Demeler.build do
+  alink("Home", :href=>"/")
+end
+```
+
+Yes, I know. Six of one, half-dozen of another. It had a legacy beginning, and I kept it in here.
+
+Name | Type | Value
+---- | ---- | -----
+text | String | The text to be inserted into the tag.
+*args | Hash | An hash of attributes which must include the :href attribute.
+
+### def checkbox(name, opts, values)
+
+This is a shortcut to build `checkbox` tags. A properly formed check box is created for each value in the `values` list. If the form object has one or more values set, those boxes will be checked.
+
+Each check box name will begin with `name` and have a number added, beginning with 1.
+
+Name | Type | Value
+---- | ---- | -----
+name | Symbol | The name of the control. It will be prepended with a number.
+opts | Hash | The attributes and options for the control.
+values | Hash | The names and values of the check boxes.
+
+The data value in the form object may be a String, Array or Hash. If this is a string, the values are comma separated. If this is an array, the elements are the values. If this is a hash, the values (right hand side of each pair) are the values.
+
+### radio(name, opts, values)
+
+This is a shortcut to build radio buttons. All the radio buttons in a set are named the same, and only vary in value. Unlike the checkbox control, the radio control only has one value at a time. The opts are applied to each radio button.
+
+Name | Type | Value
+---- | ---- | -----
+name | Symbol | The name of the control.
+opts | Hash | The attributes and options for the control.
+values | Hash | The names and values of the radio boxes.
+
+The data value in the form object may be a String, Array or Hash. If this is a string, the values are comma separated. If this is an array, the elements are the values. If this is a hash, the values (right hand side of each pair) are the values.
+
+### def select(name, opts, values)
+
+The select control is unique in that it has `select` tags surrounding a list of `option` tags. Based on the attributes (opts), you can create a pure dropdown list, or a scrolling list. See https://www.w3schools.com for more info on HTML.
+
+Name | Type | Value
+---- | ---- | -----
+name | Symbol | The name of the control.
+opts | Hash | The attributes and options for the control.
+values | Hash | The names and values of the radio boxes.
+
+The data value in the form object may be a String, Array or Hash. If this is a string, the values are comma separated. If this is an array, the elements are the values. If this is a hash, the values (right hand side of each pair) are the values.
+
+### def submit(text, opts={})
+
+The submit shortcut creates a `input` control of type 'submit'.
+
+Name | Type | Value
+---- | ---- | -----
+text | String | The text displayed on the face of the button.
+opts | Hash | The attributes and options for the control.
+
+### def tag_generator(meth, args=[], &block)
+
+You don't normally call `tag_generator` (although you can if you wish to). Tag_generator has many forms which are documented one by one below.
+
+### def tag_generator(meth, opts, &block)
+
+This form is used for most simple input controls.
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The method, i.e., the tag name: :p, :br, :input, etc.
+opts | Hash | The attributes, i.e., :class="user-class", etc.
+block | Proc | The block
+
+### def tag_generator(meth, &block)
+
+This form is used for most simple controls which have no options specified.
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The method, i.e., the tag name: :p, :br, :input, etc.
+block | Proc | The block
+
+### def tag_generator(meth, [text], &block)
+
+This form is used for controls which consist of text between opening and closing tags.
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The method, i.e., the tag name: :p, :br, :input, etc.
+text | String | The string becomes the :text=>string attribute.
+block | Proc | The block
+
+### def tag_generator(meth, [name], &block)
+
+This form is used for simple input controls which have only a name, i.e., `text(:username)`. You would use a control like this with a form object probably.
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The method, i.e., the tag name: :p, :br, :input, etc.
+name | Symbol | The name of the control.
+block | Proc | The block
+
+### def tag_generator(meth, [opts], &block)
+
+This form is used for simple input controls which have only a name, i.e., `text(:username)`. You would use a control like this with a form object probably. This option is equivalent to the first option which is the same except the opts are not in an array.
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The method, i.e., the tag name: :p, :br, :input, etc.
+opts | Hash | The attributes, i.e., :class="user-class", etc.
+block | Proc | The block
+
+### def tag_generator(meth, [name, opts], &block)
+
+This form is the same as the preceeding one, except the name is specified seperately for convenience.
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The method, i.e., the tag name: :p, :br, :input, etc.
+name | Symbol | The name of the control.
+opts | Hash | The attributes, i.e., :class="user-class", etc.
+block | Proc | The block
+
+### def tag_generator(meth, [name, text], &block)
+
+This form is the same as the preceeding one, except the text is placed between opening and closing tages, but if the meth is 'label', a `for="text"` attribute is created; otherwise, a `name="text"`. (This is the call that implements `label` tags, obviously.)
+
+Name | Type | Value
+---- | ---- | -----
+meth | Symbol | The method, i.e., the tag name: :p, :br, :input, etc.
+name | Symbol | The name of the control.
+text | String | The string becomes the :text=>string attribute.
+block | Proc | The block
+
+## How the form object is harvested
+
+For Demeler to pick up data from the form object and automatically set `value` attributes, you need to have the following conditions:
+
+* There must be a `name` attribute;
+* There must be a form object given in the `build` or `new` method;
+* The form object must contain the named key in the object's hash; and
+* The retrieved data must not be `nil` and, if the retrieved data is a String, it must not be `empty`.
+
+The data will create a:
+
+* (for `textarea`) :text attribute; or
+* (for all others) :value attribute.
+
+## Outputting the HTML
+
+There are two ways to output the HTML: formatted and compressed.
+
+Formatted code is human readable, like this:
+
+```html
 <!-- begin generated output -->
-<div class="div-class">
- ...
-</div>
+<select name="vehicle" class="x">
+ <option value="volvo">Volvo</option>
+ <option value="saab">Saab</option>
+ <option value="mercedes">Mercedes</option>
+ <option value="audi">Audi</option>
+</select>
 <!-- end generated output -->
 ```
-#### tag
 
-_A solo tag._
+whereas compressed code looks like this:
 
-```ruby
-puts (Demeler.build(nil, true) do
-  br
-end)
-
-<!-- begin generated output -->
-<br />
-<!-- end generated output -->
+```html
+<select name=\"vehicle\" class=\"x\"><option value=\"volvo\">Volvo</option><option value=\"saab\">Saab</option><option value=\"mercedes\">Mercedes</option><option value=\"audi\">Audi</option></select>
 ```
 
-#### tag string
-
-_A solo string._
-
-```ruby
-puts (Demeler.build(nil, true) do
-  p "This is a paragraph."
-end)
-
-<!-- begin generated output -->
-<p>This is a paragraph.</p>
-<!-- end generated output -->
-```
-
-_Or for longer text, you can use the block format._
-
-```ruby
-puts (Demeler.build(nil, true) do
-  p { "Un débris de hameau où quatre maisons fleuries d'orchis émergent des blés drus et hauts. Ce sont les Bastides Blanches, à mi-chemin entre la plaine et le grand désert lavandier, à l'ombre des monts de Lure. C'est là que vivent douze personnes, deux ménages, plus Gagou l'innocent." }
-end)
-
-<!-- begin generated output -->
-<p>
- Un débris de hameau où quatre maisons fleuries d'orchis émergent des blés drus et hauts. Ce sont les Bastides Blanches, à mi-chemin entre la plaine et le grand désert lavandier, à l'ombre des monts de Lure. C'est là que vivent douze personnes, deux ménages, plus Gagou l'innocent.
-</p>
-```
-
-#### tag symbol
-
-_The symbol is used as the name of the tag._ This option is used with input tags (see below).
-
-#### tag symbol, hash
-
-_This option generates_
-
-
-#### tag symbol, string
-
-_This option generates a tag with the name **symbol**, and the string between beginning and ending tags. If the tag is a :label, and the `label for` matches an `input name`, if the `input` has no `id`, one will be added.
-
-```ruby
-puts (Demeler.build(nil, true) do
-  label :username, "Enter Username"
-  text :username
-end)
-
-<!-- begin generated output -->
-<label for="username">Enter Username</label>
-<input name="username" type="text" id="username" />
-<!-- end generated output -->
-```
-
-_Tags other than `label` will have a `name` attribute instead of a `for` attribute._
+Compressed HTML is faster to generate, and is recommended for production.
 
 ## A Bigger Example of a Demeler Script
 

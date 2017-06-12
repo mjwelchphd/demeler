@@ -21,7 +21,7 @@
 # Ruby Sequel.
 
 class Demeler
-  attr_reader :out, :obj
+  attr_reader :out, :obj, :session
 
   # These calls are effectively generated in the same way as 'text' input
   # tags. Method_missing just does a substitution to implement them.
@@ -33,10 +33,13 @@ class Demeler
   # The default way to start building your markup.
   # Takes a block and returns the markup.
   #
+  # @param [object] obj a Sequel::Model object, or Hash object with an added 'errors' field.
+  # @param [boolean] gen_html A flag to control final output: true=>formatted, false=>compressed.
+  # @param [Hash] session The session variable from the caller, although it can be anything because Demeler doesn't use it.
   # @param [Proc] block
   #
-  def self.build(obj=nil, gen_html=false, &block)
-    demeler = self.new(obj, &block)
+  def self.build(obj=nil, gen_html=false, session={}, &block)
+    demeler = self.new(obj, session, &block)
     if gen_html then demeler.to_html else demeler.to_s end
   end
 
@@ -48,6 +51,8 @@ class Demeler
   # A note of warning: you'll get extra spaces in textareas if you use .to_html.
   #
   # @param [object] obj--a Sequel::Model object, or Hash object with an added 'errors' field.
+  # @param [Hash] session The session variable from the caller, although it can be anything because Demeler doesn't use it.
+  # @param [Proc] block
   #
   # To use this without Sequel, you can use an object like this:
   # class Obj<Hash
@@ -57,9 +62,10 @@ class Demeler
   #   end
   # end
   #
-  def initialize(obj=nil, &block)
+  def initialize(obj=nil, session={}, &block)
     raise ArgumentError.new("The object passed to Demeler must have an errors field containing a Hash") if obj && !defined?(obj.errors)
     @obj = obj
+    @session = session
     clear
     instance_eval(&block) if block_given?
   end
@@ -71,6 +77,7 @@ class Demeler
     @level = 0
     @out = []
     @labels = []
+    self
   end
 
   ##
@@ -103,13 +110,14 @@ class Demeler
   end
 
   ##
-  # The #alink method simplyfies the generation of <a>...</a> tags
+  # The #alink method simplyfies the generation of <a>...</a> tags.
   #
+  # @param [String] The link line to be displayed
   # @param [Array] args Extra arguments that should be processed before
   #  creating the 'a' tag.
   # @param [Proc] block
   #
-  def alink(text, args={})
+  def alink(text, args={})Hash
     raise ArgumentError.new("In Demeler#alink, expected String for argument 1, text") if !text.kind_of?(String)
     raise ArgumentError.new("In Demeler#alink, expected Hash for argument 2, opts") if !args.kind_of?(Hash)
     raise ArgumentError.new("In Demeler#alink, expected an href option in opts") if !args[:href]
@@ -162,10 +170,12 @@ class Demeler
   ##
   # The radio shortcut
   #
-  # @param [Hash] args Attributes for the control
+  # @param [Symbol] name Base Name of the control (numbers 1..n will be added)
+  # @param [Hash] opts Attributes for the control
+  # @param [Hash] value=>nomenclature pairs
   #
   # @example
-  #  g.radio(:name=>:vehicle, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")
+  #  g.radio(:vehicle, {}, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")
   #
   # @note: first argument is the :name; without the name, the radio control won't work
   #
@@ -190,7 +200,7 @@ class Demeler
   #
   # @param [Symbol] name The name of the SELECT statement
   # @param [Hash] opts Options for the SELECT statement
-  # @param [Hash] args Attributes (OPTIONS) for the SELECT
+  # @param [Hash] values A list of :name=>value pairs the control will have
   #
   # @example
   #  g.select(:vehicle, {}, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")
@@ -198,14 +208,13 @@ class Demeler
   # @note: first argument is the :name=>"vehicle"
   # @note: the second argument is a Hash or nil
   #
-  def select(name, opts, values)
+  def select(name, args, values)
     raise ArgumentError.new("In Demeler#select, expected Symbol for argument 1, name") if !name.kind_of?(Symbol)
-    raise ArgumentError.new("In Demeler#select, expected Hash for argument 2, opts") if !opts.kind_of?(Hash)
+    raise ArgumentError.new("In Demeler#select, expected Hash for argument 2, args") if !args.kind_of?(Hash)
     raise ArgumentError.new("In Demeler#select, expected Hash for argument 3, values") if !values.kind_of?(Hash)
-    opts = {:name=>name}
-    opts.merge!(opts)
+    opts = {:name=>name}.merge(args)
     data = if @obj then @obj[name] else nil end
-    tag_generator(:select, [opts]) do
+    tag_generator(:select, opts) do
       values.each do |value,nomenclature|
         sets = {:value=>value}
         sets[:selected] = 'true' if data==value.to_s
@@ -358,14 +367,6 @@ class Demeler
   end
 
   ##
-  # This method is part of #to_html below.
-  #
-  def write_html(indent,part)
-#    "<!-- #{indent} --> #{' '*(if indent<0 then 0 else indent end)}#{part}\n"
-    "#{' '*(if indent<0 then 0 else indent end)}#{part}\n"
-  end
-
-  ##
   # Method for converting the results of Demeler to a
   # human readable string. This isn't recommended for
   # production because it requires much more time to
@@ -397,5 +398,15 @@ class Demeler
     html << "<!-- end generated output -->\n"
     return html
   end # to_html
+
+private
+
+  ##
+  # This method is part of #to_html.
+  #
+  def write_html(indent,part)
+#    "<!-- #{indent} --> #{' '*(if indent<0 then 0 else indent end)}#{part}\n"
+    "#{' '*(if indent<0 then 0 else indent end)}#{part}\n"
+  end
 
 end

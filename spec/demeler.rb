@@ -57,8 +57,8 @@ describe "Simple Demeler with no Object" do
 
   it "should be a plain select control" do
     @d.clear
-    @d.select(:vehicle, {}, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")
-    @d.to_s.should.equal "<select name=\"vehicle\"><option value=\"volvo\">Volvo</option><option value=\"saab\">Saab</option><option value=\"mercedes\">Mercedes</option><option value=\"audi\">Audi</option></select>"
+    @d.select(:vehicle, {:class=>"select-class"}, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")
+    @d.to_s.should.equal "<select name=\"vehicle\" class=\"select-class\"><option value=\"volvo\">Volvo</option><option value=\"saab\">Saab</option><option value=\"mercedes\">Mercedes</option><option value=\"audi\">Audi</option></select>"
   end
 
   it "should be a plain submit control" do
@@ -74,7 +74,19 @@ describe "Simple Demeler with no Object" do
     @d.text(:username)
     @d.to_s.should.equal "<input type=\"submit\" value=\"Go!\" /><label for=\"username\">Enter Username</label><input name=\"username\" type=\"text\" id=\"username\" />"
   end
+end
 
+describe "Simple Demeler with Session" do
+  session = {:id=>1}
+  before do
+    @d = Demeler.new(nil, session)
+  end
+
+  it "should pass through the session variable" do
+    @d.clear
+    @d.out << session.inspect
+    @d.to_s.should.equal "{:id=>1}"
+  end
 end
 
 describe "Complex Demeler with Object" do
@@ -332,5 +344,4 @@ describe "Complex Demeler with Object" do
     @d.tag_generator(:input, {:name=>:err, :value=>"bobama", :type=>:text})
     @d.to_html.should.equal "<!-- begin generated output -->\n<input name=\"err\" value=\"bobama\" type=\"text\" /><warn> <-- Username already used.</warn>\n<!-- end generated output -->\n"
   end
-
 end
