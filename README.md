@@ -276,7 +276,7 @@ Opts represents a Hash with tag attributes.
 
 ## Reference Guide
 
-### def self.build(obj=nil, gen_html=false, session={}, &block)
+### def self.build(obj=nil, gen_html=false, usr=nil, &block)
 
 This is the main Demeler call used to build your HTML. This call uses your code in the block, so it makes no sense to call `build` without a block.
 
@@ -284,17 +284,17 @@ Name | Type | Value
 ---- | ---- | -----
 obj | Hash+ | An object to use to get values and error messages.
 gen_html | Boolean | Create formatted HTML (true), or compact HTML (false: default).
-session | Hash | A variable meant to pass a session in a web server, but you can use it for passing any other value as well. _This value is for the caller's use and is not used by Demeler._
+usr | * | A variable meant to pass a session in a web server, but you can use it for passing any other value as well. _This value is for the caller's use and is not used by Demeler._
 block | Proc | The block with your code.
 
-### def initialize(obj=nil, session={}, &block)
+### def initialize(obj=nil, usr=nil, &block)
 
 Initialize sets up the initial conditions in Demeler, and is called by `new`.
 
 Name | Type | Value
 ---- | ---- | -----
 obj | Hash+ | An object to use to get values and error messages.
-session | Hash | A variable meant to pass a session in a web server, but you can use it for passing any other value as well. _This value is for the caller's use and is not used by Demeler._
+usr | Hash | A variable meant to pass a session in a web server, but you can use it for passing any other value as well. _This value is for the caller's use and is not used by Demeler._
 block | Proc | The block with your code.
 
 ### def clear

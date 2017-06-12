@@ -1,4 +1,9 @@
+# 1.0.2
+
+* Renamed the 'session' variable to be 'usr'. It's become clear to me that the only way a script can access data passed from the controller to the script is through this variable: therefore, it ought to have a generic name. The variable usr will have whatever is passed in through `new` or `build`.
+
 # 1.0.1
+
 * Changed the `clear` method to return self so that clear can be chained.
 * Corrected some of the comments above individual methods.
 * Made some corrections and additions to the README.
@@ -10,4 +15,5 @@
 
 
 # 1.0.0
+
 * Initial version.

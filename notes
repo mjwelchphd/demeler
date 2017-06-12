@@ -25,13 +25,19 @@ git config --list
 # To push up to GitHub
 git remote add origin https://github.com/mjwelchphd/demeler.git
 
+# UPDATE THE DEMELER GEM SRC
+# CHANGE VERSION AND DATE 
+# UPDATE CHANGELOG
+# UPDATE README
+# BUILD THE GEM
+# UPDATE VERSION BELOW IN THE gem push COMMAND
 # COMMIT CHANGES IN GIT BEFORE PUSHING!
 git push -u origin master
 
 #----------------------------------------
 
 # To upload the gem to rubygems.org
-gem push demeler-1.0.1.gem
+gem push demeler-1.0.2.gem
 
 #----------------------------------------
 

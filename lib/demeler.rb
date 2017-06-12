@@ -21,7 +21,7 @@
 # Ruby Sequel.
 
 class Demeler
-  attr_reader :out, :obj, :session
+  attr_reader :out, :obj, :usr
 
   # These calls are effectively generated in the same way as 'text' input
   # tags. Method_missing just does a substitution to implement them.
@@ -35,11 +35,11 @@ class Demeler
   #
   # @param [object] obj a Sequel::Model object, or Hash object with an added 'errors' field.
   # @param [boolean] gen_html A flag to control final output: true=>formatted, false=>compressed.
-  # @param [Hash] session The session variable from the caller, although it can be anything because Demeler doesn't use it.
+  # @param [*] usr The usr variable from the caller, although it can be anything because Demeler doesn't use it.
   # @param [Proc] block
   #
-  def self.build(obj=nil, gen_html=false, session={}, &block)
-    demeler = self.new(obj, session, &block)
+  def self.build(obj=nil, gen_html=false, usr=nil, &block)
+    demeler = self.new(obj, usr, &block)
     if gen_html then demeler.to_html else demeler.to_s end
   end
 
@@ -51,7 +51,7 @@ class Demeler
   # A note of warning: you'll get extra spaces in textareas if you use .to_html.
   #
   # @param [object] obj--a Sequel::Model object, or Hash object with an added 'errors' field.
-  # @param [Hash] session The session variable from the caller, although it can be anything because Demeler doesn't use it.
+  # @param [*] usr The usr variable from the caller; it can be anything because Demeler doesn't use it.
   # @param [Proc] block
   #
   # To use this without Sequel, you can use an object like this:
@@ -62,10 +62,10 @@ class Demeler
   #   end
   # end
   #
-  def initialize(obj=nil, session={}, &block)
+  def initialize(obj=nil, usr=nil, &block)
     raise ArgumentError.new("The object passed to Demeler must have an errors field containing a Hash") if obj && !defined?(obj.errors)
     @obj = obj
-    @session = session
+    @usr = usr
     clear
     instance_eval(&block) if block_given?
   end

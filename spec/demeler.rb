@@ -84,7 +84,7 @@ describe "Simple Demeler with Session" do
 
   it "should pass through the session variable" do
     @d.clear
-    @d.out << session.inspect
+    @d.out << @d.usr.inspect
     @d.to_s.should.equal "{:id=>1}"
   end
 end
