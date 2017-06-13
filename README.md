@@ -82,7 +82,57 @@ end
 puts d.to_html
 ```
 
+## Passing Variables into Demeler
+
+There are three variables you'll be interested in in Demeler.
+
+* `obj` The object, if any, that was passed as parameter 1 in `new` or `build`. I talk a little more about that one below.
+* `usr` The object, if any, that was passed as parameter 3 in `build` or parameter 2 in `new`. This object can be anything you need access to in the Demeler script. If you need to pass several objects, simply put them into an array or hash and pass that.
+* `out` This is an array where the intermediate results are held internally. To convert the array onto a String, use `to_s` or `to_html` if you created the Demeler object with `new`, and set parameter 2 to false or true if you used `build`.
+
+For example,
+
+```ruby
+countries = ['USA', 'Canada', 'France']
+Demeler.build(nil, true, countries) do
+  p usr.inspect
+end
+```
+
+ will generate:
+ 
+```html
+ <!-- begin generated output -->
+<p>["USA", "Canada", "France"]</p>
+<!-- end generated output -->
+```
+
+If you have more than one thing to pass into Demeler, put your things into an Array or Hash. For example, say you have two lists of countries and cities.
+
+```ruby
+countries = ['USA', 'Canada', 'France']
+cities = ['Los Angeles', 'Paris', 'Berlin']
+data = {:countries=>countries, :cities=>cities}
+Demeler.build(nil, true, data) do
+  p usr[:countries].inspect
+  p usr[:cities].inspect
+end
+```
+
+The output is
+
+```html
+<!-- begin generated output -->
+<p>["USA", "Canada", "France"]</p>
+<p>["Los Angeles", "Paris", "Berlin"]</p>
+<!-- end generated output -->
+```
+
+Note that the array is named `data` outside of Demeler, but once it's passed in through parameter 3 (usr) of `build`, inside Demeler it's name is `usr`.
+
 ## Fields from an object can be inserted automatically
+
+First, a word of warning: if you use variables other than those below, you script will crash. If your script crashes, don't blame Demeler first; look in your script for variables that shouldn't be there.
 
 You can automatically load the values from a Sequel::Model object, or you can define an object and use it in place of Sequel. To define an object, use a definition similar to this:
 
@@ -98,15 +148,15 @@ You can automatically load the values from a Sequel::Model object, or you can de
 Your new object is just a Hash+, so you can assign it values like this:
 
 ```ruby
-  obj = Obj.new
-  obj[:username] = "michael"
-  obj[:password] = "my-password"
+  something = Obj.new
+  something[:username] = "michael"
+  something[:password] = "my-password"
 ```
 
 The object can now be used to fill `input` fields in a form:
 
 ```ruby
-  html = Demeler.build(obj,true) do
+  html = Demeler.build(something,true) do
     text :username
     password :password
   end
@@ -115,14 +165,14 @@ The object can now be used to fill `input` fields in a form:
 
 That code will automatically insert the values from `obj` for you.
 
-> _NOTE: When the first argument is a symbol, it is used as the name of the field._
-
 ```html
 <!-- begin generated output -->
 <input name="username" type="text" value="michael" />
 <input name="password" type="password" value="my-password" />
 <!-- end generated output -->
 ```
+
+> _NOTE: When the first argument is a symbol, it is used as the name of the field. Also, the form object is called `something` on the outside, but when we pass it through, it's name is `obj` on the inside._
 
 ### Demeler creates error messages, too
 
