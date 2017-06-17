@@ -122,8 +122,22 @@ class Demeler
     raise ArgumentError.new("In Demeler#alink, expected Hash for argument 2, opts") if !args.kind_of?(Hash)
     raise ArgumentError.new("In Demeler#alink, expected an href option in opts") if !args[:href]
 
-    href = args.delete(:href).to_s
+    # I had to use class.name because the Ruby case doesn't work
+    # properly with comparing value.class with Symbol or String.
+    # It was necessary to compare value.class.name with "Symbol" and "String".
     opts = args.clone
+    value = opts.delete(:href)
+    case value.class.name
+    when "Symbol"
+      # convert to string
+      href = value.to_s
+    when "String"
+      # clone string
+      href = String.new(value)
+    else
+      href = value
+    end
+
     if !parms.empty?
       href << '?'
       parms.each do |k,v|

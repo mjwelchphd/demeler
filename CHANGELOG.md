@@ -1,3 +1,7 @@
+# 1.0.5
+
+* Had to eliminate a "side effect" by cloning the :href string before using it.
+
 # 1.0.4
 
 * Added a `parms` argument to `alink` so that parameters that are being passed can be added as a hash. See the README.
