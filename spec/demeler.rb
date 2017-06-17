@@ -43,6 +43,12 @@ describe "Simple Demeler with no Object" do
     @d.to_s.should.equal "<a href=\"registration\">Registration</a>"
   end
 
+  it "should be a link with parameters" do
+    @d.clear
+    @d.alink("Registration", {:href=>"registration"}, :id=>77, :name=>"Mike")
+    @d.to_s.should.equal "<a href=\"registration?id=77&name=Mike\">Registration</a>"
+  end
+
   it "should be a plain checkbox control" do
     @d.clear
     @d.checkbox(:vehicle, {}, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")

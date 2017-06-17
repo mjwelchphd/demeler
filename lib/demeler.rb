@@ -117,11 +117,25 @@ class Demeler
   #  creating the 'a' tag.
   # @param [Proc] block
   #
-  def alink(text, args={})Hash
+  def alink(text, args={}, parms={})Hash
     raise ArgumentError.new("In Demeler#alink, expected String for argument 1, text") if !text.kind_of?(String)
     raise ArgumentError.new("In Demeler#alink, expected Hash for argument 2, opts") if !args.kind_of?(Hash)
     raise ArgumentError.new("In Demeler#alink, expected an href option in opts") if !args[:href]
+
+    href = args.delete(:href).to_s
     opts = args.clone
+    if !parms.empty?
+      href << '?'
+      parms.each do |k,v|
+        href << k.to_s
+        href << '='
+        href << v.to_s
+        href << '&'
+      end
+    else
+      href << '&' # will be removed
+    end
+    opts[:href] = href[0..-2] # remove last '&'
     opts[:text] = text
     tag_generator(:a, opts)
   end

@@ -107,13 +107,12 @@ end
 <!-- end generated output -->
 ```
 
-If you have more than one thing to pass into Demeler, put your things into an Array or Hash. For example, say you have two lists of countries and cities.
+If you have more than one thing to pass into Demeler, put your things into an Array or Hash. For example, say you have two lists of countries and cities, you can pass them in a hash (Ruby's default) like this:
 
 ```ruby
 countries = ['USA', 'Canada', 'France']
 cities = ['Los Angeles', 'Paris', 'Berlin']
-data = {:countries=>countries, :cities=>cities}
-Demeler.build(nil, true, data) do
+Demeler.build(nil, true, :countries=>countries, :cities=>cities) do
   p usr[:countries].inspect
   p usr[:cities].inspect
 end
@@ -370,7 +369,7 @@ Name | Type | Value
 *args | Array | An array of arguments from the call that was intercepted. Tag_generator will try to make sense of them.
 block | Proc | The block with your code.
 
-### def alink(text, args={})
+### def alink(text, args={}, parms={})
 
 The `alink` method is a shortcut to build an `a` tag. You could also write a `a` tag like so:
 
@@ -388,12 +387,28 @@ Demeler.build do
 end
 ```
 
-Yes, I know. Six of one, half-dozen of another. It had a legacy beginning, and I kept it in here.
+Better yet, the `alink` method lets you easily add parameters. To do this, you have to place the args in curly brackets, then list your parameters at the end like so:
+
+```ruby
+params={:id=>77}
+out =Demeler.build do
+  alink("Jobs", {:href=>"jobs"}, :id=>params[:id], :job=>'commercial')
+end
+```
+
+The HTML generated will look like this:
+
+```html
+<!-- begin generated output -->
+<a href="jobs?id=77&job=commercial">Jobs</a>
+<!-- end generated output -->
+```
 
 Name | Type | Value
 ---- | ---- | -----
 text | String | The text to be inserted into the tag.
 *args | Hash | An hash of attributes which must include the :href attribute.
+*parms | Hash | An hash of parameters to be passed when the link is clicked.
 
 ### def checkbox(name, opts, values)
 

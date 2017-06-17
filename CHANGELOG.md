@@ -1,3 +1,9 @@
+# 1.0.4
+
+* Added a `parms` argument to `alink` so that parameters that are being passed can be added as a hash. See the README.
+* Added a test in specs to test the passing of parameters in `alink`.
+* Updated the README and Notes.
+
 # 1.0.3
 
 * Updated the README and Notes.
