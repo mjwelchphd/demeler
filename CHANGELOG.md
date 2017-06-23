@@ -1,3 +1,7 @@
+# 1.0.6
+
+* Added a `reset` shortcut that works like the `submit` shortcut.
+
 # 1.0.5
 
 * Had to eliminate a "side effect" by cloning the :href string before using it.

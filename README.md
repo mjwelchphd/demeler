@@ -88,7 +88,7 @@ There are three variables you'll be interested in in Demeler.
 
 * `obj` The object, if any, that was passed as parameter 1 in `new` or `build`. I talk a little more about that one below.
 * `usr` The object, if any, that was passed as parameter 3 in `build` or parameter 2 in `new`. This object can be anything you need access to in the Demeler script. If you need to pass several objects, simply put them into an array or hash and pass that.
-* `out` This is an array where the intermediate results are held internally. To convert the array onto a String, use `to_s` or `to_html` if you created the Demeler object with `new`, and set parameter 2 to false or true if you used `build`.
+* `out` This is an array where the intermediate results are held internally. To convert the array onto a String, use `to_s` or `to_html` if you created the Demeler object with `new`; set parameter 2 to false or true if you used `build`.
 
 For example,
 
@@ -126,8 +126,6 @@ The output is
 <p>["Los Angeles", "Paris", "Berlin"]</p>
 <!-- end generated output -->
 ```
-
-Note that the array is named `data` outside of Demeler, but once it's passed in through parameter 3 (usr) of `build`, inside Demeler it's name is `usr`.
 
 ## Fields from an object can be inserted automatically
 
@@ -435,6 +433,15 @@ opts | Hash | The attributes and options for the control.
 values | Hash | The names and values of the radio boxes.
 
 The data value in the form object may be a String, Array or Hash. If this is a string, the values are comma separated. If this is an array, the elements are the values. If this is a hash, the values (right hand side of each pair) are the values.
+
+### def reset(text, opts={})
+
+The reset shortcut creates a `input` control of type 'reset'.
+
+Name | Type | Value
+---- | ---- | -----
+text | String | The text displayed on the face of the button.
+opts | Hash | The attributes and options for the control.
 
 ### def select(name, opts, values)
 

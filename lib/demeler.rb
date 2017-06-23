@@ -224,6 +224,22 @@ class Demeler
   end
 
   ##
+  # The reset shortcut
+  #
+  # @param [String] text The text which the button will display
+  # @param [Hash] opts Options for the RESET statement
+  #
+  # @example
+  #  g.reset("Reset", {})
+  #
+  def reset(text, opts={})
+    attr = {:type=>:reset}
+    attr[:value] = text
+    attr.merge!(opts)
+    tag_generator(:input, attr)
+  end
+
+  ##
   # The select (select_tag) shortcut
   #
   # @param [Symbol] name The name of the SELECT statement
