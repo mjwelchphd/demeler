@@ -317,7 +317,17 @@ For a checkbox, radio, or select control, use the formats below.
 </select>
 ```
 
-Opts represents a Hash with tag attributes.
+Opts represents a Hash with tag attributes. In particular, note that the `:default` attribute will define the default in the case no `obj` is passed to the control.
+
+For example, if the `:default` is `:saab` or `'saab'`, you'll get
+
+`radio(:vehicle, {:default=>:saab}, :volvo=>"Volvo", :saab=>"Saab", :mercedes=>"Mercedes", :audi=>"Audi")` =>
+```html
+<input name="vehicle" type="radio" value="volvo">Volvo</input>
+<input name="vehicle" type="radio" value="saab" checked="true">Saab</input>
+<input name="vehicle" type="radio" value="mercedes">Mercedes</input>
+<input name="vehicle" type="radio" value="audi">Audi</input>
+```
 
 
 

@@ -173,7 +173,14 @@ class Demeler
     raise ArgumentError.new("In Demeler#checkbox, expected Hash for argument 2, opts") if !opts.kind_of?(Hash)
     raise ArgumentError.new("In Demeler#checkbox, expected Hash for argument 3, values") if !values.kind_of?(Hash)
     n = 0
-    data = if @obj then @obj[name] else nil end
+    data = case
+    when @obj
+      @obj[name]
+    when (default = opts[:default])
+      default.to_s
+    else
+      nil
+    end
     case data.class.name
     when "String"
       data = data.split(",")
@@ -211,7 +218,14 @@ class Demeler
     raise ArgumentError.new("In Demeler#radio, expected Symbol for argument 1, name") if !name.kind_of?(Symbol)
     raise ArgumentError.new("In Demeler#radio, expected Hash for argument 2, opts") if !opts.kind_of?(Hash)
     raise ArgumentError.new("In Demeler#radio, expected Hash for argument 3, values") if !values.kind_of?(Hash)
-    data = if @obj then @obj[name] else nil end
+    data = case
+    when @obj
+      @obj[name]
+    when (default = opts[:default])
+      default.to_s
+    else
+      nil
+    end
     values.each do |value,nomenclature|
       sets = opts.clone
       sets[:name] = "#{name}".to_sym
@@ -257,7 +271,14 @@ class Demeler
     raise ArgumentError.new("In Demeler#select, expected Hash for argument 2, args") if !args.kind_of?(Hash)
     raise ArgumentError.new("In Demeler#select, expected Hash for argument 3, values") if !values.kind_of?(Hash)
     opts = {:name=>name}.merge(args)
-    data = if @obj then @obj[name] else nil end
+    data = case
+    when @obj
+      @obj[name]
+    when (default = opts[:default])
+      default.to_s
+    else
+      nil
+    end
     tag_generator(:select, opts) do
       values.each do |value,nomenclature|
         sets = {:value=>value}
