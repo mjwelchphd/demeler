@@ -176,7 +176,7 @@ class Demeler
     data = case
     when @obj
       @obj[name]
-    when (default = opts[:default])
+    when (default = opts.delete(:default))
       default.to_s
     else
       nil
@@ -221,7 +221,7 @@ class Demeler
     data = case
     when @obj
       @obj[name]
-    when (default = opts[:default])
+    when (default = opts.delete(:default))
       default.to_s
     else
       nil
@@ -274,7 +274,7 @@ class Demeler
     data = case
     when @obj
       @obj[name]
-    when (default = opts[:default])
+    when (default = opts.delete(:default))
       default.to_s
     else
       nil
