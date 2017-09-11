@@ -37,7 +37,7 @@ git push -u origin master
 #----------------------------------------
 
 # To upload the gem to rubygems.org
-gem push demeler-1.0.8.gem
+gem push demeler-1.0.9.gem
 
 sudo gem install demeler
 

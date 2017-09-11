@@ -282,7 +282,7 @@ class Demeler
     tag_generator(:select, opts) do
       values.each do |value,nomenclature|
         sets = {:value=>value}
-        sets[:selected] = 'true' if data==value.to_s
+        sets[:selected] = 'true' if data.to_s==value.to_s
         sets[:text] = nomenclature
         tag_generator(:option, [sets])
       end
