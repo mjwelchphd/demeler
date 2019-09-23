@@ -20,6 +20,8 @@
 # This class doesn't depend on any particular framework, but I use it with
 # Ruby Sequel.
 
+require "cgi" # part of the Ruby std lib
+
 class Demeler
   attr_reader :out, :obj, :usr
 
@@ -143,7 +145,7 @@ class Demeler
       parms.each do |k,v|
         href << k.to_s
         href << '='
-        href << v.to_s
+        href << CGI::escape(v.to_s)
         href << '&'
       end
     else
