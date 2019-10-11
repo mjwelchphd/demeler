@@ -1,3 +1,7 @@
+# 1.0.10
+
+* Made some changes to the documentation. More planned.
+
 # 1.0.9
 
 * Fixed the `selected` test in the `select` statement generator to convert both parts to string, then compare. As it was, a FixNum in the data obj failed to compare with a string in the options list.

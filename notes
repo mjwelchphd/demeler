@@ -22,9 +22,6 @@ git config --list
 
 #----------------------------------------
 
-# To push up to GitHub
-git remote add origin https://github.com/mjwelchphd/demeler.git
-
 # UPDATE THE DEMELER GEM SRC
 # CHANGE VERSION AND DATE 
 # UPDATE CHANGELOG
@@ -32,6 +29,9 @@ git remote add origin https://github.com/mjwelchphd/demeler.git
 # BUILD THE GEM
 # UPDATE VERSION BELOW IN THE gem push COMMAND
 # COMMIT CHANGES IN GIT BEFORE PUSHING!
+
+# To push up to GitHub
+git remote add origin https://github.com/mjwelchphd/demeler.git
 git push -u origin master
 
 #----------------------------------------
@@ -49,5 +49,4 @@ irb -Ilib
 
 require_relative 'lib/demeler'
 load './lib/demeler.rb'
-
 

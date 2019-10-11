@@ -1,8 +1,8 @@
 # Demeler Gem
 
-**Copyright (c) 2017 Michael J Welch, Ph.D. <mjwelchphd@gmail.com>**
+**Copyright (c) 2017-2019 Michael J Welch, Ph.D. <mjwelchphd@gmail.com>**
 
-_NOTE: I appologize that the documentation isn't better than it is, but I'm running way behind in my work trying to make this into a gem in order to preserve and share it._
+_NOTE: I apologize that the documentation isn't better than it is, but I'm running way behind in my work trying to make this into a gem in order to preserve and share it._
 
 All files in this distribution are subject to the terms of the MIT license.
 
@@ -16,6 +16,65 @@ The French word démêler means "to unravel," and that's sort of what this gem d
 
 This class doesn't depend on any particular framework, but I use it with Ruby Sequel.
 
+# Review of HTML5
+
+> In 1980, physicist Tim Berners-Lee, a contractor at CERN, proposed and prototyped ENQUIRE, a system for CERN researchers to use and share documents. In 1989, Berners-Lee wrote a memo proposing an Internet-based hypertext system.[3] Berners-Lee specified HTML and wrote the browser and server software in late 1990. That year, Berners-Lee and CERN data systems engineer Robert Cailliau collaborated on a joint request for funding, but the project was not formally adopted by CERN. In his personal notes[4] from 1990 he listed[5] "some of the many areas in which hypertext is used" and put an encyclopedia first.
+
+> The first publicly available description of HTML was a document called "HTML Tags", first mentioned on the Internet by Tim Berners-Lee in late 1991.[6][7] It describes 18 elements comprising the initial, relatively simple design of HTML. Except for the hyperlink tag, these were strongly influenced by SGMLguid, an in-house Standard Generalized Markup Language (SGML)-based documentation format at CERN. Eleven of these elements still exist in HTML 4.[8]
+
+> HTML is a markup language that web browsers use to interpret and compose text, images, and other material into visual or audible web pages. -- Wikipedia <https://en.wikipedia.org/wiki/HTML>
+
+### HTML Tags
+
+HTML tags are element names surrounded by angle brackets:
+
+```html
+<opening-tag>content goes here<closing-tag>
+```
+
+The paragraph tag is a simple example of such a tag. For example:
+
+```html
+<p>This is a paragraph. Space will precede and follow this text to set it apart as a paragraph.</p>
+```
+
+- HTML tags normally come in pairs like \<p> and \</p>.
+- The first tag in a pair is the start or opening tag, the second tag is the end or closing tag.
+- The end tag is written like the start tag, but with a forward slash inserted before the tag name.
+- Some tags don't require a content, so they can be written in a shorthand notation omitting the closing tag thusly: \<input ... />.
+- Some tags don't require a closing tag, like \<br>, but Demeler will generate these in the shorthand form \<br />.
+
+<https://www.w3schools.com/html/html_intro.asp>
+
+#### Example of a Simple HTML Page
+
+```HTML
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Page Title</title>
+	</head>
+	<body>
+		<h1>My First Heading</h1>
+		<p>My first paragraph.</p>
+	</body>
+</html>
+```
+
+#### Example Explained
+
+- The \<!DOCTYPE html> declaration defines this document to be HTML5
+- The \<html> element is the root element of an HTML page
+- The \<head> element contains meta information about the document
+- The \<title> element specifies a title for the document
+- The \<body> element contains the visible page content
+- The \<h1> element defines a large heading
+- The \<p> element defines a paragraph
+- HTML is usually indented for readability, but does not require indentation, or even new lines (CR-LF or LF).
+
+If you are reading this document, it is supposed that you are already familiar with HTML. 
+
+# Introduction to Demeler Gem
 
 ## The Demeler gem generates HTML from three inputs:
 * A Ruby source file you write;
@@ -26,20 +85,15 @@ Let's start with the most basic form, a simple example. Run `irb` and enter this
 
 ```ruby
 require 'demeler'
-html = Demeler.build(nil,true) do
+html = Demeler.build(nil, true) do
   html do
-    head do
-      title "Hello, World!"
-    end
-    body do
-      h1 "Hello, World!"
-    end
+    head { title("Hello, World!") }
+    body { h1("Hello, World!") }
   end
-end
-puts html
+end; puts html
 ```
 
-You'll get the html code like this:
+You'll get HTML code like this:
 
 ```html
 <!-- begin generated output -->
@@ -54,15 +108,13 @@ You'll get the html code like this:
 <!-- end generated output -->
 ```
 
-### Why bother with Demeler? Why not just write HTML?
+The first argument (`nil`) is the `object`: we'll talk about that later. The second argument (`true`) tells Demeler to generate **formatted** HTML. Otherwise, you'll get a string like this:
 
-There are several reasons to use this gem:
+```html
+<html><head><title>Hello, World!</title></head><body><h1>Hello, World!</h1></body></html>
+```
 
-* You write in Ruby code
-* Demeler balances out all the HTML tags
-* Demeler optionally formats the HTML, producing human readable output
-* Demeler can receive an object with data (such as a Sequel::Model object), and automatically insert the values
-* Demeler can insert error messages your controller inserts into the object
+Unformated is usually preferred for production, as it produces slightly more compact output (but really, it's not a big deal for small files).
 
 ## You can also use the gem directly
 
@@ -82,6 +134,16 @@ end
 puts d.to_html
 ```
 
+### Why bother with Demeler? Why not just write HTML?
+
+There are several reasons to use this gem:
+
+* You write in Ruby code
+* Demeler balances out all the HTML tags
+* Demeler optionally formats the HTML, producing human readable output
+* Demeler can receive an object with data (such as a Sequel::Model object), and automatically insert the values into your HTML
+* Demeler can insert error messages into the object from your Ruby code, if there is an error
+
 ## Passing Variables into Demeler
 
 There are three variables you'll be interested in in Demeler.
@@ -94,7 +156,7 @@ For example,
 
 ```ruby
 countries = ['USA', 'Canada', 'France']
-Demeler.build(nil, true, countries) do
+html = Demeler.build(nil, true, countries) do
   p usr.inspect
 end
 ```
@@ -102,7 +164,7 @@ end
  will generate:
  
 ```html
- <!-- begin generated output -->
+<!-- begin generated output -->
 <p>["USA", "Canada", "France"]</p>
 <!-- end generated output -->
 ```
@@ -129,7 +191,7 @@ The output is
 
 ## Fields from an object can be inserted automatically
 
-First, a word of warning: if you use variables other than those below, you script will crash. If your script crashes, don't blame Demeler first; look in your script for variables that shouldn't be there.
+First, a word of warning: if you use variables other than those below, your script will crash. If your script crashes, don't blame Demeler first; look in your script for variables that shouldn't be there.
 
 You can automatically load the values from a Sequel::Model object, or you can define an object and use it in place of Sequel. To define an object, use a definition similar to this:
 
@@ -269,13 +331,75 @@ In most cases, this can be achieved just by eliminating the {}; `p "Some text." 
 
 This is because the solo string is converted to a :text argument automatically.
 
-## How to create an input control
+# Programming
+
+## How to create an HTML tag
+
+Any non-input tag can be created using the tag name and the tag options, like:
+
+```ruby
+<tag-name>(<tag-option-1>, <tag-option-2>, ...)
+```
+
+And since Ruby allows you to omit the parenthesis, you can also write:
+
+```ruby
+<tag-name> <tag-option-1>, <tag-option-2>, ...
+```
+
+For example, a paragraph can be written as:
+
+```ruby
+p("This is a paragraph.")
+```
+
+or
+
+```ruby
+p "This is a paragraph."
+```
+
+If the tag requires a condition statement at the end, you'll need the parenthesis.
+
+```ruby
+p("This paragraph may, or may not, be inserted into the HTML: #{obj.some_variable}.") unless obj.some_variable.nil?
+```
+
+**_Note_** that to do this, you have to pass in an object (`obj`)or a hash (`usr`) with the value you are inserting into the string and testing. (See the examples.)
+
+## How to create an input tag
+
+An input tag can be created using:
+
+```ruby
+input(<name>, <options>)
+```
+
+Where `name` is a ruby symbol such as :username or :password, and `options` can be any tag options allowed for that kind of input, such as :size for a :type=>"text" input tag.
+
+For example:
+
+```ruby
+input(:username, :type=>"text", :size=>30, :value=>"joe.e.razsolli")
+```
+
+Or there is a shortcut for \<input> HTML. Just use the _tag type_ as the tag itself. For example:
+
+```ruby
+text(:username, :size=>30, :value=>"joe.e.razsolli")
+```
+
+This format makes the Demeler code a little easier to read and write.
+
+<br/>
 
 A standard input control is just a tag and options. Take the `text` control, for example.
 
 `text :username, :size=>30, :value=>"joe.e.razsolli"` => `<input name="username" size="30" value="joe.e.razsolli" type="text" />`
 
-The button, color, date, datetime_local, email, hidden, image, month, number, password, range, reset, search, submit, tel, text, time, url, and week tags all work the that way.
+**_NOTE_** The button, color, date, datetime_local, email, hidden, image, month, number, password, range, reset, search, submit, tel, text, time, url, and week tags all work the that way.
+
+<br>
 
 The textarea control, on the other hand, puts it's value between the tags, so it uses a :text attribute instead of a :value attribute.
 
@@ -360,7 +484,7 @@ Clear resets the output variables in order to reuse Demeler without having to re
 
 ### method_missing(meth, *args, &block)
 
-This is a Ruby method which catches method calls that have no real method. For example, when you code a `body` tag, there is no method in Demeler to handle that, so it is caught be `missing_method`. Missing_method passes the call along to `tag_generator` to be coded.
+This is a Ruby method which catches method calls that have no real method. For example, when you code a `body` tag, there is no method in Demeler to handle that, so it is caught by `missing_method`. Missing\_method passes the call along to `tag_generator` to be coded.
 
 Name | Type | Value
 ---- | ---- | -----
@@ -379,7 +503,7 @@ block | Proc | The block with your code.
 
 ### def alink(text, args={}, parms={})
 
-The `alink` method is a shortcut to build an `a` tag. You could also write a `a` tag like so:
+The `alink` method is a shortcut to build an `a` tag. You could  write an `a` tag like so:
 
 ```ruby
 Demeler.build do
@@ -387,7 +511,7 @@ Demeler.build do
 end
 ```
 
-but the alink method is a shortcut. Code it like this:
+but the alink method is a shortcut which supports added features. Note that HTML tag attributes are coded into `args`, and parameters are coded into `parms`. The alink method allows you to add attributes easily. Code it like this:
 
 ```ruby
 Demeler.build do
@@ -395,22 +519,25 @@ Demeler.build do
 end
 ```
 
-Better yet, the `alink` method lets you easily add parameters. To do this, you have to place the args in curly brackets, then list your parameters at the end like so:
+To add parameters, you have to place the attributes (in `args`) in curly brackets, then list your parameters at the end like so:
 
 ```ruby
-params={:id=>77}
-out =Demeler.build do
-  alink("Jobs", {:href=>"jobs"}, :id=>params[:id], :job=>'commercial')
+params={:id=>77} # a hypothetical value
+
+Demeler.build do
+  alink("Review Jobs", {:href=>"jobs"}, :id=>params[:id], :job=>'commercial job')
 end
 ```
 
-The HTML generated will look like this:
+The attribute `href` is coded as :html=>"jobs", where "jobs" is the link URL. The `:href` value could also be coded as `:jobs`. A quoted text is the customary way to code an `:href` value, however. The HTML generated will look like this:
 
 ```html
 <!-- begin generated output -->
-<a href="jobs?id=77&job=commercial">Jobs</a>
+<a href="jobs?id=77&job=commercial+job">Jobs</a>
 <!-- end generated output -->
 ```
+
+Notice also that the parameter value is escaped, i.e., reserved and "unsafe" characters (such as space) are changed to a URI form.
 
 Name | Type | Value
 ---- | ---- | -----
